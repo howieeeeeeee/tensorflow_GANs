@@ -13,20 +13,20 @@ def xavier_init(size):
     return tf.random_normal(shape=size,stddev=xavier_stddev)
 
 X = tf.placeholder(tf.float32,shape = [None,784])
-D_W1 = tf.Variable(xavier_init([784, 128]))
-D_b1 = tf.Variable(tf.zeros(shape=[128]))
+D_W1 = tf.Variable(xavier_init([784, 128]),name='D_W1')
+D_b1 = tf.Variable(tf.zeros(shape=[128]),name='D_b1')
 
-D_W2 = tf.Variable(xavier_init([128, 1]))
-D_b2 = tf.Variable(tf.zeros(shape=[1]))
+D_W2 = tf.Variable(xavier_init([128, 1]),name='D_W2')
+D_b2 = tf.Variable(tf.zeros(shape=[1]),name='D_b2')
 
 theta_D = [D_W1,D_W2,D_b1,D_b2]
 
 Z = tf.placeholder(tf.float32,shape = [None,100])
-G_W1 = tf.Variable(xavier_init([100, 128]))
-G_b1 = tf.Variable(tf.zeros(shape=[128]))
+G_W1 = tf.Variable(xavier_init([100, 128]),name='G_W1')
+G_b1 = tf.Variable(tf.zeros(shape=[128]),name='G_W1')
 
-G_W2 = tf.Variable(xavier_init([128, 784]))
-G_b2 = tf.Variable(tf.zeros(shape=[784]))
+G_W2 = tf.Variable(xavier_init([128, 784]),name='G_W1')
+G_b2 = tf.Variable(tf.zeros(shape=[784]),name='G_W1')
 
 theta_G = [G_W1,G_W2,G_b1,G_b2]
 
@@ -87,6 +87,9 @@ Z_dim = 100
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 sess = tf.Session()
+
+saver = tf.train.Saver()
+
 sess.run(tf.global_variables_initializer())
 
 if not os.path.exists('out2/'):
@@ -108,6 +111,10 @@ for it in range(1000000):
     _, G_loss_curr = sess.run([G_solver, G_loss], feed_dict={Z: sample_Z(mb_size, Z_dim)})
   
     if it % 1000 == 0:
+        train_dir = 'out/'
+        checkpoint_path = os.path.join(train_dir,'model.ckpt')
+        saver.save(sess,checkpoint_path,global_step=it)
+        
         print('Iter: {}'.format(it))
         print('D loss: {:.4}'. format(D_loss_curr))
         print('G_loss: {:.4}'.format(G_loss_curr))
